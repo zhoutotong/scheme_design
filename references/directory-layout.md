@@ -1,47 +1,49 @@
 # 设计方案项目目录约定
 
-## 推荐结构
+## 推荐结构（HTML 工具包）
 
 ```
 <project>/
-├── readme.md                 # 材料角色说明与浏览/编辑入口（必有）
-├── summary.<ext>             # 总体正式设计正文（HTML 或约定定稿格式）
-├── summary.note.md           # 总体配对过程笔记
-├── summary.md                # 可选：仅跳转到正文（避免双源）
-├── <subsystem>/              # 子系统专章
-│   ├── <name>.<ext>          # 专章正文
-│   └── <name>.note.md        # 专章配对笔记
-├── specs/                    # 短规约（文档 / 框图）
-├── reference/                # 外部结构参照（默认不进正文）
-├── medias/diagrams/          # 框图源文件与预览图（若使用）
-├── agent-requests/           # 可选：页内「向 Agent 提要求」清单
-└── scripts/                  # 可选：本地预览 / 内嵌同步
+├── readme.md
+├── summary.html              # 总体正式正文（DOC_BODY + data-doc-path）
+├── summary.note.md
+├── summary.md                # 仅跳转
+├── <subsystem>/              # 可选专章
+│   ├── <name>.html
+│   └── <name>.note.md
+├── specs/
+│   ├── doc.md
+│   └── diagram.md
+├── reference/
+├── medias/diagrams/          # .drawio / *.drawio.png / *.edit.html
+├── agent-requests/
+│   ├── pending.md
+│   └── archive/
+└── scripts/                  # 来自 skill assets/scripts
+    ├── serve_docs.py
+    ├── sync_drawio_html_embed.py
+    ├── doc_chrome.js
+    └── doc_diagram.js
 ```
 
-定稿格式由项目选定（常见为 HTML 便于框图内嵌；亦可 Markdown）。**同一结论不得在正文与另一份「正文 md」双源维护**。
+用脚手架一键生成：`python3 <skill>/scripts/init_scheme_project.py <project> --title "..."`  
+说明见 [html-toolkit.md](html-toolkit.md)。
+
+定稿格式优先 HTML（便于框图内嵌与页内编辑）。**同一结论不得在正文与另一份「正文 md」双源维护**。
 
 ## readme.md 应写内容
 
-1. **目录功能说明**（上表各类路径）
-2. **详细说明**：每个关键文件一行，标明角色，例如：
-   - 「正式设计正文」
-   - 「配对过程笔记（对照 / 待决 / 修订；不进正文）」
-   - 「结构参照，内容与视觉均不照搬」
-   - 「文档 / 框图短规约」
-3. **编写要求摘要**：
-   - 笔记性内容不得写入正文
-   - 模块卡：职责 / 输入 / 输出；未确认标「待设计」
-   - 参考材料只对照结构
+1. **目录功能说明**
+2. **详细说明**：每个关键文件一行角色
+3. **编写要求摘要** + 启动 `serve_docs.py` 的说明
 
 ## 命名建议
 
 | 类型 | 示例 |
 |------|------|
-| 总体正文 | `summary.html` / `总体设计方案.md` |
+| 总体正文 | `summary.html` |
 | 总体笔记 | `summary.note.md` |
 | 子系统专章 | `<域>/<name>.html` + `<name>.note.md` |
+| 框图 | `medias/diagrams/<name>.drawio` |
 | 文档规约 | `specs/doc.md` |
 | 框图规约 | `specs/diagram.md` |
-| 结构参照 | `reference/<stack>.md` |
-
-终稿与过程笔记文件名应能一眼配对；大体积二进制来源可保留，日常编辑优先可 diff 的文本。

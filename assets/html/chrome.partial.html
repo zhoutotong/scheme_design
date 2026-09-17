@@ -1,0 +1,47 @@
+<div class="doc-chrome" id="doc-chrome">
+    <button type="button" data-doc="edit">编辑正文</button>
+    <button type="button" data-doc="save" class="primary" hidden>保存正文</button>
+    <button type="button" data-doc="cancel" hidden>取消</button>
+    <button type="button" data-doc="agent-req">向 Agent 提要求</button>
+    <span class="doc-hint" id="doc-hint"></span>
+  </div>
+  <div class="agent-req-overlay" id="agent-req-overlay" aria-hidden="true">
+    <svg id="agent-req-link-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="agent-req-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"></path>
+        </marker>
+      </defs>
+      <path class="link-line" id="agent-req-link-path" marker-end="url(#agent-req-arrow)" d=""></path>
+      <circle class="link-dot" id="agent-req-link-from" r="4" cx="0" cy="0"></circle>
+      <circle class="link-dot" id="agent-req-link-to" r="5" cx="0" cy="0"></circle>
+    </svg>
+  </div>
+  <aside class="agent-req-sidebar" id="agent-req-sidebar" hidden aria-label="修改要求">
+    <div class="agent-req-head">
+      <div>
+        <h2>修改要求</h2>
+        <p>蓝线指向当前目标。逐个加入清单后统一提交。</p>
+      </div>
+      <button type="button" class="agent-req-close" data-agent="close" title="关闭">×</button>
+    </div>
+    <div class="agent-req-body">
+      <label>当前目标</label>
+      <div class="agent-req-target empty" id="agent-req-target">尚未选用。点「选用元素」后点击正文模块/标题/框图，或先选中文字。</div>
+      <label for="agent-req-text">对本目标的修改说明</label>
+      <textarea id="agent-req-text" placeholder="例：补充示教建图步骤；删掉这句；框图该模块改名…"></textarea>
+      <div class="agent-req-actions">
+        <button type="button" data-agent="pick">选用元素</button>
+        <button type="button" data-agent="capture-sel">用选区</button>
+        <button type="button" class="primary" data-agent="add">加入清单</button>
+        <span class="agent-req-status" id="agent-req-status"></span>
+      </div>
+      <label>待提交清单 <span id="agent-req-count">(0)</span></label>
+      <ul class="agent-req-list" id="agent-req-list"></ul>
+      <div class="agent-req-actions">
+        <button type="button" class="primary" data-agent="submit">一并提交</button>
+        <button type="button" data-agent="copy">复制给 Agent</button>
+        <button type="button" data-agent="clear-list">清空清单</button>
+      </div>
+    </div>
+  </aside>

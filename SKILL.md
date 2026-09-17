@@ -3,9 +3,10 @@ name: scheme-design
 description: >-
   Write Chinese technical design schemes (总体/子系统/架构/接口/方案设计).
   Use when drafting or revising 设计方案, architecture docs, subsystem chapters,
-  formal design HTML/Markdown with paired process notes, mapping requirements
-  from Feishu/refs into module boundaries, or setting up a scheme project
-  (正文 + *.note.md + specs + reference + diagrams).
+  formal design HTML with paired process notes, scaffolding HTML toolkit
+  (serve_docs/drawio embed/doc chrome), mapping requirements from Feishu/refs
+  into module boundaries, or setting up a scheme project
+  (正文 + *.note.md + specs + scripts + diagrams).
 ---
 
 # 设计方案编写（scheme-design）
@@ -44,16 +45,24 @@ description: >-
 
 ### 1. 盘点材料角色与目录
 
-若项目尚无结构，按 [references/directory-layout.md](references/directory-layout.md) 建目录，并写/更新根目录 `readme.md`（每个文件的**用途角色**一行说清）。
+若项目尚无结构：
+
+1. 优先用脚手架（见 [references/html-toolkit.md](references/html-toolkit.md)）：
+   ```bash
+   python3 scripts/init_scheme_project.py <项目目录> --title "系统名称"
+   ```
+2. 或按 [references/directory-layout.md](references/directory-layout.md) 手建目录，并从本 skill 的 `assets/scripts/` 复制工具脚本。
+3. 写/更新根目录 `readme.md`（每个文件的**用途角色**一行说清）。
 
 | 角色 | 典型路径 | 用法 |
 |------|----------|------|
-| 正式正文 | `*.html` 或约定定稿格式 | 可交付设计结论 |
+| 正式正文 | `summary.html` 等 | 可交付设计结论（`DOC_BODY` 内） |
 | 过程笔记 | 配对 `*.note.md` | 对照、待决、修订；**不进正文** |
 | 短规约 | `specs/` | 文档 / 框图写法 |
 | 结构参照 | `reference/` | 只对照结构；不进正文、不沿用其视觉 |
 | 内容事实 | 用户方案、协议、飞书、纪要、既有专章 | 唯一内容来源 |
-| 框图 | `medias/diagrams/` 等 | 与正文模块边界一致 |
+| 框图 | `medias/diagrams/` | `.drawio` + 预览图；与正文一致 |
+| 工具脚本 | `scripts/` | `serve_docs.py` / sync / chrome / diagram JS |
 
 ### 2. 冻结分层、闭环与本期边界
 
@@ -87,10 +96,23 @@ description: >-
 ### 5. 框图与正文一致
 
 - **绘制**：使用配套 skill **`drawio-skill`** 产出可编辑 `.drawio`（见下节）；勿用手绘 SVG 或其他异源图顶替。
+- 插入 HTML：用本 skill `assets/html/diagram-panel.partial.html`，再 `scripts/sync_drawio_html_embed.py` 同步内嵌。
 - 图内只表达结构结论与必要边注；**禁止**笔记性副标题（「对齐某某架构」、源码路径等）。
 - 改分层或模块名时：**正文 + 框图 + 配对笔记**同步。
-- 视觉与连线细则若项目有 `specs/diagram.md` 则遵循；否则保持简洁、对齐、少交叉，白底、克制配色。
+- 视觉与连线细则遵循项目 `specs/diagram.md`（脚手架已带默认版）。
 - 子系统内部图只画本子系统能力与数据流；对外用输出条/边注概括。
+
+### 工程工具（HTML 方案）
+
+| 命令 / 文件 | 作用 |
+|-------------|------|
+| `scripts/init_scheme_project.py` | 初始化项目（scripts + HTML 壳 + specs） |
+| `python3 scripts/serve_docs.py` | 本地预览；页内保存正文 / `.drawio` / Agent 要求 |
+| `scripts/sync_drawio_html_embed.py` | `.drawio` → HTML embed + `.edit.html` |
+| `scripts/doc_chrome.js` | 编辑正文 + 向 Agent 提要求 |
+| `scripts/doc_diagram.js` | 框图预览 / 在线编辑 / 全屏 |
+
+细则：[references/html-toolkit.md](references/html-toolkit.md)。
 
 ### 6. 待决与修订
 
@@ -183,5 +205,6 @@ Agent：
 
 - [references/directory-layout.md](references/directory-layout.md) — 目录与 readme 约定
 - [references/templates.md](references/templates.md) — 总体 / 子系统 / 笔记 / 映射表骨架
+- [references/html-toolkit.md](references/html-toolkit.md) — HTML 框架、脚本与脚手架
 - [drawio-skill](https://github.com/Agents365-ai/drawio-skill) — 框图绘制
 - [飞书 CLI 安装指南](https://open.feishu.cn/document/no_class/mcp-archive/feishu-cli-installation-guide.md) — `lark-cli` 与 `lark-*` skills

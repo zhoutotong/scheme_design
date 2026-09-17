@@ -1,0 +1,40 @@
+<figure>
+  <div class="diagram-panel" id="diagram-{{SLOT}}" data-slot="{{SLOT}}">
+    <div class="diagram-toolbar">
+      <button type="button" data-action="preview" class="active">预览</button>
+      <button type="button" data-action="edit">在线编辑</button>
+      <button type="button" data-action="zoom" hidden>放大查看</button>
+      <button type="button" data-action="fullscreen" hidden>全屏编辑</button>
+      <button type="button" data-action="exit-fullscreen" hidden>退出全屏</button>
+      <button type="button" data-action="download" hidden>保存 .drawio</button>
+      <a class="btn" id="diagram-{{SLOT}}-external" href="{{DRAWIO_REL}}.edit.html" target="_blank" rel="noopener">新窗口编辑</a>
+      <span class="hint"></span>
+    </div>
+    <div class="diagram-view preview active">
+      <div class="diagram-preview-wrap" aria-hidden="true">
+        <iframe class="diagram-preview-frame" id="diagram-{{SLOT}}-preview" title="框图预览导出"></iframe>
+      </div>
+      <img class="diagram-preview-img" src="{{DRAWIO_REL}}.png" alt="{{CAPTION}}" title="点击放大查看" />
+    </div>
+    <div class="diagram-view edit">
+      <div class="diagram-edit-wrap">
+        <div class="diagram-loading" id="diagram-{{SLOT}}-loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <div>正在加载 Draw.io 编辑器…</div>
+        </div>
+        <iframe class="diagram-frame" id="diagram-{{SLOT}}-frame" title="Draw.io 编辑器" allow="clipboard-read; clipboard-write"></iframe>
+        <div class="diagram-fallback" id="diagram-{{SLOT}}-fallback">
+          <p>页内编辑器未能加载。</p>
+          <p>
+            <a id="diagram-{{SLOT}}-fallback-link" href="{{DRAWIO_REL}}.edit.html" target="_blank" rel="noopener">新窗口打开</a>
+            · <button type="button" data-action="retry-edit">重试</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- DRAWIO_EMBED_DATA:BEGIN:{{SLOT}} -->
+<script type="application/json" id="drawio-data-{{SLOT}}">{"path":"{{DRAWIO_REL}}","encoding":"base64","xml_b64":"","edit_url":"","edit_helper":"{{DRAWIO_REL}}.edit.html"}</script>
+<!-- DRAWIO_EMBED_DATA:END:{{SLOT}} -->
+  <figcaption>{{CAPTION}}</figcaption>
+</figure>
