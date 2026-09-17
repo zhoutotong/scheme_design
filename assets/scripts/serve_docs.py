@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Serve design docs locally; overwrite .drawio / document body on save.
+"""本仓库本地设计文档服务（不要从其他项目或 skill 目录直接引用本文件）。
+
+ROOT 固定为本文件所在 scripts/ 的上一级（当前项目根）。
+所有写回（HTML / .drawio / agent-requests）只落在该 ROOT 下。
 
 Usage:
+  cd <本项目根>
   python3 scripts/serve_docs.py
   # then open http://127.0.0.1:8765/summary.html
   # or http://127.0.0.1:8765/<subsystem>/<name>.html
@@ -19,7 +23,9 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-ROOT = Path(__file__).resolve().parents[1]
+# 仅服务「本脚本所在仓库」；禁止依赖外部目录的 scripts。
+_SCRIPT = Path(__file__).resolve()
+ROOT = _SCRIPT.parents[1]
 DIAGRAMS = (ROOT / "medias" / "diagrams").resolve()
 AGENT_REQ = (ROOT / "agent-requests").resolve()
 SYNC = ROOT / "scripts" / "sync_drawio_html_embed.py"
@@ -330,14 +336,22 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    p = argparse.ArgumentParser()
+    p = argparse.ArgumentParser(description=f"Serve design docs under {ROOT}")
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--port", type=int, default=8765)
     p.add_argument("--no-open", action="store_true")
     args = p.parse_args()
+    if not (ROOT / "scripts" / "serve_docs.py").resolve().samefile(_SCRIPT):
+        raise SystemExit(
+            f"refuse: script is not this project's scripts/serve_docs.py\n"
+            f"  script={_SCRIPT}\n  expected under={ROOT / 'scripts'}"
+        )
+    if not SYNC.is_file():
+        raise SystemExit(f"missing local sync script: {SYNC}")
     httpd = ThreadingHTTPServer((args.host, args.port), Handler)
     url = f"http://{args.host}:{args.port}/summary.html"
-    print(f"serving {ROOT}")
+    print(f"script: {_SCRIPT}")
+    print(f"serving only: {ROOT}")
     print(f"open {url}")
     print("「保存正文」按页面 data-doc-path 覆盖对应 .html；「保存 .drawio」覆盖 medias/diagrams/*.drawio")
     print("「向 Agent 提要求」写入 agent-requests/pending.md")

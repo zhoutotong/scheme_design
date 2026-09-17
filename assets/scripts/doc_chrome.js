@@ -1,9 +1,19 @@
 /*! Shared doc chrome: edit body + agent requests.
  * Pages set <html data-doc-path="relative/to/root.html">.
+ * API 优先同源；仅 file:// 时回退本机 serve_docs 默认端口。
  */
 (function () {
-  var SAVE_HTML = ["/api/save-html", "http://127.0.0.1:8765/api/save-html"];
-  var SAVE_AGENT = ["/api/agent-request", "http://127.0.0.1:8765/api/agent-request"];
+  function apiUrls(path) {
+    var urls = [path];
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      urls.push(location.origin + path);
+    } else {
+      urls.push("http://127.0.0.1:8765" + path);
+    }
+    return urls;
+  }
+  var SAVE_HTML = apiUrls("/api/save-html");
+  var SAVE_AGENT = apiUrls("/api/agent-request");
   var DOC_PATH =
     document.documentElement.getAttribute("data-doc-path") ||
     (location.pathname || "").replace(/^\//, "") ||

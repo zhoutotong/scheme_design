@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Sync .drawio XML into summary.html for in-page diagrams.net editing.
+"""本仓库本地：将 .drawio XML 同步进对应 HTML 的 DRAWIO_EMBED_DATA 槽。
 
-Also refreshes medias/diagrams/*.edit.html (new-window editor URL).
+ROOT 固定为本文件所在 scripts/ 的上一级。
 
 Usage:
   python3 scripts/sync_drawio_html_embed.py
+  python3 scripts/sync_drawio_html_embed.py --html summary.html --drawio medias/diagrams/foo.drawio --slot overall
 """
 from __future__ import annotations
 

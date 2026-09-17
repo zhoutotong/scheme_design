@@ -202,7 +202,16 @@
       });
     }
 
-    var SAVE_ENDPOINTS = ["/api/save-drawio", "http://127.0.0.1:8765/api/save-drawio"];
+    function apiUrls(path) {
+      var urls = [path];
+      if (location.protocol === "http:" || location.protocol === "https:") {
+        urls.push(location.origin + path);
+      } else {
+        urls.push("http://127.0.0.1:8765" + path);
+      }
+      return urls;
+    }
+    var SAVE_ENDPOINTS = apiUrls("/api/save-drawio");
 
     function downloadText(filename, text, mime) {
       var blob = new Blob([text], { type: mime || "application/xml;charset=utf-8" });
