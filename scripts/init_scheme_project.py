@@ -142,11 +142,52 @@ def copy_tree(src: Path, dst: Path, force: bool) -> None:
     print(f"copy {src.name} -> {dst}")
 
 
+def ensure_scripts(target: Path, force: bool = False) -> None:
+    """Copy toolkit scripts into <target>/scripts/ (the project being worked on).
+
+    Always installs into the given project directory — never leave scripts only
+    inside the skill tree or another sample repo.
+    """
+    target = target.resolve()
+    target.mkdir(parents=True, exist_ok=True)
+    dest = target / "scripts"
+    required = [
+        "serve_docs.py",
+        "sync_drawio_html_embed.py",
+        "doc_chrome.js",
+        "doc_diagram.js",
+    ]
+    missing = [n for n in required if not (dest / n).is_file()]
+    if dest.is_dir() and not missing and not force:
+        print(f"scripts already present: {dest}")
+        print(f"start server from THIS project: cd {target} && python3 scripts/serve_docs.py")
+        return
+
+    dest.mkdir(parents=True, exist_ok=True)
+    for f in SCRIPTS.iterdir():
+        if not f.is_file() or f.name.startswith(".") or f.suffix == ".pyc":
+            continue
+        if f.name == "__pycache__":
+            continue
+        out = dest / f.name
+        if out.exists() and not force and f.name not in missing:
+            print(f"skip existing {out}")
+            continue
+        shutil.copy2(f, out)
+        print(f"copy {f.name} -> {out}")
+
+    still = [n for n in required if not (dest / n).is_file()]
+    if still:
+        raise SystemExit(f"failed to install scripts: missing {still} (assets={SCRIPTS})")
+    print(f"ensure_scripts done: {dest}")
+    print(f"start server from THIS project: cd {target} && python3 scripts/serve_docs.py")
+
+
 def init_project(target: Path, title: str, force: bool) -> None:
     target = target.resolve()
     target.mkdir(parents=True, exist_ok=True)
 
-    copy_tree(SCRIPTS, target / "scripts", force=force)
+    ensure_scripts(target, force=force)
 
     # specs from scaffold (prefer scaffold copies)
     specs_src = SCAFFOLD / "specs"
@@ -245,15 +286,33 @@ def add_chapter(target: Path, name: str, title: str, force: bool) -> None:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Scaffold a scheme-design HTML project")
-    p.add_argument("target", type=Path, help="project directory")
+    p = argparse.ArgumentParser(
+        description=(
+            "Scaffold a scheme-design HTML project INTO the target directory. "
+            "Scripts are always generated under <target>/scripts/ — "
+            "do not run serve_docs from the skill repo or another sample project."
+        )
+    )
+    p.add_argument(
+        "target",
+        type=Path,
+        help="project directory that will own scripts/ and docs (usually cwd)",
+    )
     p.add_argument("--title", default="系统设计", help="document title")
     p.add_argument("--force", action="store_true", help="overwrite existing files")
+    p.add_argument(
+        "--scripts-only",
+        action="store_true",
+        help="only install/refresh <target>/scripts from skill assets (no HTML overwrite)",
+    )
     p.add_argument("--chapter", metavar="NAME", help="also add subsystem chapter NAME/")
     p.add_argument("--chapter-title", default="", help="chapter title (default: NAME)")
     args = p.parse_args()
     if not ASSETS.is_dir():
         raise SystemExit(f"assets not found under {SKILL_ROOT}")
+    if args.scripts_only:
+        ensure_scripts(args.target, force=args.force)
+        return
     init_project(args.target, args.title, args.force)
     if args.chapter:
         add_chapter(

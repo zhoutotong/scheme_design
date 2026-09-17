@@ -18,9 +18,19 @@ npx -y skills add https://github.com/zhoutotong/scheme_design --skill -y
 
 ## 初始化设计方案工程
 
+工具必须装进**你正在写的那个项目目录**，不要借用别的仓库的 `serve_docs.py`。
+
 ```bash
-python3 scripts/init_scheme_project.py /path/to/project --title "系统名称"
-python3 /path/to/project/scripts/serve_docs.py
+SKILL=…/scheme-design          # skill 根（含 assets/）
+TARGET=/path/to/your/project   # 当前项目
+
+# 只生成/补齐 TARGET/scripts/
+python3 "$SKILL/scripts/init_scheme_project.py" "$TARGET" --scripts-only
+
+# 或完整脚手架
+python3 "$SKILL/scripts/init_scheme_project.py" "$TARGET" --title "系统名称"
+
+cd "$TARGET" && python3 scripts/serve_docs.py
 ```
 
 详见 [references/html-toolkit.md](references/html-toolkit.md)。

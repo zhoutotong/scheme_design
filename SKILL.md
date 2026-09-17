@@ -15,6 +15,34 @@ description: >-
 
 > 与「工业技术方案 / 实施方案 / 技术协议」类供货文稿不同；后者用 `writing-tech-schemes`。本 skill 面向**系统设计 / 架构 / 子系统设计方案**。
 
+## 硬门禁：脚本必须落在「当前项目」目录
+
+HTML 预览/保存依赖**当前设计方案仓库**下的 `scripts/`，不是 skill 仓库，也不是其他示例项目（如别的 `nav_system`）。
+
+**Agent 必须：**
+
+1. 以用户正在编写的项目根为 `TARGET`（通常是 workspace / cwd）。
+2. 若 `TARGET/scripts/serve_docs.py` 不存在（或不完整）→ **立刻**把本 skill 的工具装进 `TARGET`：
+   ```bash
+   # 定位本 skill 根（含 assets/ 与 scripts/init_scheme_project.py）
+   # 常见路径：.agents/skills/scheme-design 或 ~/.agents/skills/scheme-design
+   python3 <skill根>/scripts/init_scheme_project.py "$TARGET" --scripts-only
+   # 全新工程（无 summary.html 时）用完整初始化，仍写入 $TARGET：
+   python3 <skill根>/scripts/init_scheme_project.py "$TARGET" --title "系统名称"
+   ```
+3. 启动预览时**只**在 `TARGET` 内执行：
+   ```bash
+   cd "$TARGET" && python3 scripts/serve_docs.py
+   ```
+
+**禁止：**
+
+- 到其他仓库启动 `serve_docs.py` 来编辑本项目
+- 只在 skill 目录里跑服务、期望写回用户项目
+- 用软链把用户项目的 `scripts/` 指到 skill 或其他项目
+
+细则：[references/html-toolkit.md](references/html-toolkit.md)。
+
 ## 核心原则
 
 1. **正文 ≠ 笔记**：正式正文只保留可交付结论（结构、职责、输入/输出、接口、待设计项）。对照表、源码路径、修订动机、推导过程写入配对 `*.note.md`。
@@ -34,26 +62,28 @@ description: >-
 ## 工作流（复制勾选）
 
 ```
-- [ ] 0. 无工程则 init_scheme_project（复制 scripts/HTML/specs）
+- [ ] 0. 确认 TARGET=当前项目根；缺 scripts/ 则 --scripts-only 或完整 init 装入 TARGET
 - [ ] 1. 盘点材料角色与目录
 - [ ] 2. 冻结分层、闭环与本期边界
 - [ ] 3. 需求/他案 → 模块映射（写入笔记）
 - [ ] 4. 起草正文（模块卡：职责 / 输入 / 输出）
-- [ ] 5. 框图与正文一致（drawio-skill → sync embed）
+- [ ] 5. 框图与正文一致（drawio-skill → TARGET 内 sync）
 - [ ] 6. 待决进笔记；正文仅「待设计」标签
 - [ ] 7. 专章化与交叉引用；更新 readme / 修订记录
 ```
 
 ### 1. 盘点材料角色与目录
 
-若项目尚无结构：
+若项目尚无结构，或已有正文但**没有本项目自己的** `scripts/`：
 
-1. 优先用脚手架（见 [references/html-toolkit.md](references/html-toolkit.md)）：
+1. 将工具**安装到当前项目**（见上文硬门禁）：
    ```bash
-   python3 scripts/init_scheme_project.py <项目目录> --title "系统名称"
+   python3 <skill根>/scripts/init_scheme_project.py <当前项目根> --scripts-only
+   # 或全新：
+   python3 <skill根>/scripts/init_scheme_project.py <当前项目根> --title "系统名称"
    ```
-2. 或按 [references/directory-layout.md](references/directory-layout.md) 手建目录，并从本 skill 的 `assets/scripts/` 复制工具脚本。
-3. 写/更新根目录 `readme.md`（每个文件的**用途角色**一行说清）。
+2. 目录约定见 [references/directory-layout.md](references/directory-layout.md)；`readme.md` 写清每个文件角色。
+3. 预览：`cd <当前项目根> && python3 scripts/serve_docs.py`（不要去别的目录启动）。
 
 | 角色 | 典型路径 | 用法 |
 |------|----------|------|
@@ -107,11 +137,11 @@ description: >-
 
 | 命令 / 文件 | 作用 |
 |-------------|------|
-| `scripts/init_scheme_project.py` | 初始化项目（scripts + HTML 壳 + specs） |
-| `python3 scripts/serve_docs.py` | 本地预览；页内保存正文 / `.drawio` / Agent 要求 |
-| `scripts/sync_drawio_html_embed.py` | `.drawio` → HTML embed + `.edit.html` |
-| `scripts/doc_chrome.js` | 编辑正文 + 向 Agent 提要求 |
-| `scripts/doc_diagram.js` | 框图预览 / 在线编辑 / 全屏 |
+| `<skill>/scripts/init_scheme_project.py <TARGET>` | 在 **TARGET** 生成完整工程 |
+| `… init_scheme_project.py <TARGET> --scripts-only` | 仅把 `scripts/` 装进 **TARGET**（已有正文时用） |
+| `cd <TARGET> && python3 scripts/serve_docs.py` | 只服务并写回 **TARGET** |
+| `<TARGET>/scripts/sync_drawio_html_embed.py` | `.drawio` → HTML embed |
+| `<TARGET>/scripts/doc_chrome.js` / `doc_diagram.js` | 页内编辑 / 框图 |
 
 细则：[references/html-toolkit.md](references/html-toolkit.md)。
 
