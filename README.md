@@ -21,6 +21,13 @@ npx -y skills add https://github.com/zhoutotong/scheme_design --skill -y
 
 签约用**实施方案 / 技术协议 / 规格书**请用工业技术方案类 skill（如 `writing-tech-schemes`），不要与本 skill 混用。
 
+## 配套 skill
+
+| 能力 | Skill | 安装 |
+|------|-------|------|
+| 框图 `.drawio` | [`drawio-skill`](https://github.com/Agents365-ai/drawio-skill) | `npx skills add Agents365-ai/365-skills -g` |
+| 飞书云文档 | `lark-doc`（+ `lark-shared` / `lark-wiki`…） | 见[飞书 CLI 安装指南](https://open.feishu.cn/document/no_class/mcp-archive/feishu-cli-installation-guide.md) |
+
 ## 结构
 
 ```

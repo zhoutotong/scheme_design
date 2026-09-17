@@ -68,7 +68,7 @@ description: >-
 
 ### 3. 需求 / 他案 → 模块映射
 
-1. 从飞书方案、需求表、会议纪要抽出能力清单
+1. 从飞书方案、需求表、会议纪要抽出能力清单（飞书读写见下节「配套 skill」）
 2. 映射到正文模块（表放在 `*.note.md`，**不**贴进正文）
 3. 开源/他案对照同样只进笔记；正文命名以可交付技术名为准，不绑定单一栈
 
@@ -86,6 +86,7 @@ description: >-
 
 ### 5. 框图与正文一致
 
+- **绘制**：使用配套 skill **`drawio-skill`** 产出可编辑 `.drawio`（见下节）；勿用手绘 SVG 或其他异源图顶替。
 - 图内只表达结构结论与必要边注；**禁止**笔记性副标题（「对齐某某架构」、源码路径等）。
 - 改分层或模块名时：**正文 + 框图 + 配对笔记**同步。
 - 视觉与连线细则若项目有 `specs/diagram.md` 则遵循；否则保持简洁、对齐、少交叉，白底、克制配色。
@@ -107,6 +108,49 @@ description: >-
 - 专章结论不得与总体分层/边注矛盾。
 - 更新 `readme.md` 索引。
 
+## 配套 skill（必须按任务加载）
+
+本 skill **不**内嵌框图绘制或飞书 API 细节；需要时**先加载对应 skill 再执行**。
+
+### 框图：`drawio-skill`
+
+| 项 | 说明 |
+|----|------|
+| 用途 | 架构 / 分层 / 数据流等可编辑 `.drawio`，导出 PNG/SVG |
+| 仓库 | https://github.com/Agents365-ai/drawio-skill |
+| 安装 | `npx skills add Agents365-ai/365-skills -g` 或 clone 到 `~/.agents/skills/drawio-skill` |
+| 约定 | 产出放入项目框图目录（如 `medias/diagrams/`）；风格遵循项目 `specs/diagram.md`（若有）；图内禁止笔记性标注 |
+
+Agent：绘制或大改框图前 **Read 并遵循 `drawio-skill` 的 SKILL.md**；改完后与正文模块名/边注对齐。
+
+### 飞书文档：`lark-cli` + `lark-*` skills
+
+| 场景 | Skill | 说明 |
+|------|-------|------|
+| CLI 安装/登录/身份 | `lark-shared` | 所有 `lark-*` 的底座；缺 CLI 时先装 |
+| 读/写云文档 Docx | `lark-doc` | URL/token 含 `/docx/`、`/wiki/` 文档内容时用 |
+| 知识库节点/空间 | `lark-wiki` | 空间结构、节点移动/创建；正文编辑仍走 `lark-doc` |
+| 云盘文件 | `lark-drive` | 上传下载、评论等非正文场景 |
+| 文档内画板 | `lark-whiteboard` | 飞书云文档内嵌画板（≠ 本地 `.drawio`） |
+
+安装飞书 CLI 与 skills（官方 Agent 指南）：
+
+```shell
+npm install -g @larksuite/cli
+npx -y skills add https://open.feishu.cn --skill -y
+lark-cli config init --new          # 浏览器完成应用凭证
+lark-cli auth login --recommend     # 把授权链接发给用户
+lark-cli auth status
+```
+
+指南：https://open.feishu.cn/document/no_class/mcp-archive/feishu-cli-installation-guide.md
+
+Agent：
+
+- 需要读飞书方案作事实来源 → 加载 **`lark-doc`**（及 **`lark-shared`**），用 `lark-cli` 拉取；**不要**用未鉴权的 WebFetch 硬爬云文档。
+- `lark-cli` 未安装或未登录 → 先按上表安装/登录，再继续映射与起草。
+- 本地设计框图用 **`drawio-skill`**；仅当用户要改**飞书文档里的画板**时才用 `lark-whiteboard`。
+
 ## 文风速查
 
 - 用「本系统 / 本模块 / 外部系统 / 实施前提」，少用口语与营销夸张
@@ -124,6 +168,8 @@ description: >-
 | 框图与正文模块名/边注不一致 | 同步改图与正文 |
 | 把估算带宽/延时写成合同验收 | 标「待设计」或标明非验收口径 |
 | 业务话术进模块名 | 改为技术边界命名 |
+| 不用 drawio-skill 手搓异源图 | 改用 `drawio-skill` 产出 `.drawio` |
+| 用 WebFetch 硬爬飞书云文档 | 改用 `lark-doc` + `lark-cli` |
 
 ## 红旗 — 停下重来
 
@@ -131,8 +177,11 @@ description: >-
 - 准备编造硬指标且不标来源
 - 同一文档出现两套互相矛盾的分层或闭环
 - 把开源栈宣传图的深色/渐变风格搬进本方案框图
+- 未加载 `drawio-skill` / `lark-doc` 却开始画框图或改飞书正文
 
 ## 附加资源
 
 - [references/directory-layout.md](references/directory-layout.md) — 目录与 readme 约定
 - [references/templates.md](references/templates.md) — 总体 / 子系统 / 笔记 / 映射表骨架
+- [drawio-skill](https://github.com/Agents365-ai/drawio-skill) — 框图绘制
+- [飞书 CLI 安装指南](https://open.feishu.cn/document/no_class/mcp-archive/feishu-cli-installation-guide.md) — `lark-cli` 与 `lark-*` skills
